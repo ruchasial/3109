@@ -10,8 +10,7 @@ class fil :
 		self.name=name
 	def keyfun(self):
 		return self.size
-#global i
-#j=[]
+
 group=defaultdict(list)
 file_list=[]
 def traverse(top):
@@ -25,34 +24,29 @@ def traverse(top):
 	        if S_ISDIR(mode):
 	            traverse(pathname)
 	        elif S_ISREG(mode):
-		    #i=i+1
 		    file_hash1=hashfile(pathname)
 		    size1 = os.stat(pathname)[ST_SIZE]
-		    #fil.display(fi[0])
 		    file_list.append(fil(size1,file_hash1,pathname))
-	            #callback(pathname)
 	        elif S_ISLNK(mode):
 	            print "Skipped file : "+pathname
-	except UnboundLocalError :
+	except UnboundLocalError,OSError :
 		print "Skipped file : "+pathname
 
 def hashfile(path, blocksize = 65536):
-    afile = open(path, 'rb')
-    hasher = hashlib.md5()
-    buf = afile.read(blocksize)
-    while len(buf) > 0:
-        hasher.update(buf)
-        buf = afile.read(blocksize)
-    afile.close()
-    return hasher.hexdigest()
-
-#def visitfile(file):
-#    print('visiting', file)
+	try:
+    		afile = open(path, 'rb')
+    		hasher = hashlib.md5()
+    		buf = afile.read(blocksize)
+   		while len(buf) > 0:
+    			hasher.update(buf)
+	 		buf = afile.read(blocksize)
+		afile.close()
+		return hasher.hexdigest()
+	except IOError :
+    		print "Skipped file : "+path
 
 def sort():
 	file_list.sort(key=fil.keyfun)
-#	for fi in file_list:
-#			print "%s\t\t%s\t%s" %(fi.name,fi.size,fi.file_hash)
 
 def grouping():
 	chunk_list=[]
@@ -72,11 +66,10 @@ def grouping():
 def comparehash() :
 	for key in group.keys():
 		for i in range(0,len(group[key])-1):
-			#j=1+i
 			print "-----------------------------------------------------------for size "+str(key)+"-------------------------------------------------------------------------"
 			for j in range ((1+i),len(group[key])):
 				if group[key][i].file_hash == group[key][j].file_hash:
-					print group[key][i].name+"\n\t\t\t\t\t\t\tAND\n\n"+group[key][j].name+"\nARE DUPES\n"		
+					print group[key][i].name+"\n\t\t\t\t\t\t\tAND\n"+group[key][j].name+"\nARE DUPES\n"		
 	k=1
 	while (k==1):	
 		rm_file=raw_input("Enter the duplicate file to be deleted or enter e to exit\n >>>>")
